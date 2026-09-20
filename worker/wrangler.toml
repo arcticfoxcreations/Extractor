@@ -1,0 +1,16 @@
+name = "word-extractor-api"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+# Created with: wrangler kv namespace create WORD_CACHE
+# Paste the returned id below, then deploy.
+[[kv_namespaces]]
+binding = "WORD_CACHE"
+id = "replace-with-your-kv-namespace-id"
+
+[vars]
+ALLOWED_ORIGINS = "*"
+CACHE_TTL_SECONDS = "86400"
+
+[observability]
+enabled = true

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Word Extractor — understand the hard words in a paper</title>
+<meta name="description" content="Paste a research paper and get plain-language explanations of its difficult terms, sourced from Wikipedia, Wikidata and open dictionaries.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to the reader</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <h1 class="wordmark">Word Extractor</h1>
+    <p class="tagline">Paste a paper. The hard words explain themselves.</p>
+
+    <div class="masthead__controls">
+      <button type="button" id="settings-toggle" class="icon-button" aria-expanded="false" aria-controls="settings-panel">
+        Backend
+      </button>
+      <button type="button" id="theme-toggle" class="icon-button" aria-label="Switch colour theme">
+        <span id="theme-label">Auto</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="settings-panel" class="settings" hidden>
+    <label class="settings__label" for="api-base">API address</label>
+    <div class="settings__row">
+      <input id="api-base" type="url" class="field" spellcheck="false" placeholder="https://your-backend.onrender.com">
+      <button type="button" id="api-save" class="button button--quiet">Save</button>
+      <button type="button" id="api-test" class="button button--quiet">Test</button>
+    </div>
+    <p id="api-status" class="settings__status" role="status"></p>
+  </div>
+</header>
+
+<nav class="modes" aria-label="Choose what to do">
+  <button type="button" class="modes__option is-active" data-mode="reader" aria-pressed="true">Read a paper</button>
+  <button type="button" class="modes__option" data-mode="lookup" aria-pressed="false">Look up one word</button>
+</nav>
+
+<main id="main" class="layout">
+
+  <!-- Reader mode: paste text, mark the hard words, gloss them on click. -->
+  <section class="panel panel--reader" data-panel="reader">
+    <form id="reader-form" class="composer">
+      <label class="composer__label" for="paper-text">Paste an abstract, a paragraph, or a whole paper &mdash; or dictate it</label>
+      <textarea id="paper-text" class="composer__input" rows="9" spellcheck="false"
+        placeholder="Apoptosis is a form of programmed cell death that occurs in multicellular organisms…"></textarea>
+
+      <div class="composer__actions">
+        <button type="submit" id="extract-button" class="button button--primary">Find hard words</button>
+        <button type="button" class="button button--mic" data-voice-target="paper-text" aria-pressed="false">Speak</button>
+        <button type="button" id="sample-button" class="button button--quiet">Use a sample</button>
+        <button type="button" id="clear-reader" class="button button--quiet">Clear</button>
+        <span id="reader-meta" class="composer__meta" role="status"></span>
+      </div>
+    </form>
+
+    <div id="reader-error" class="notice" hidden></div>
+
+    <article id="reading" class="reading" hidden>
+      <p class="reading__hint">Words with a marked underline have an explanation. Select one to read it.</p>
+      <div id="reading-body" class="reading__body"></div>
+    </article>
+
+    <div id="reader-empty" class="empty">
+      <p>Nothing marked yet. Paste some text above and the terms worth explaining will be underlined.</p>
+    </div>
+  </section>
+
+  <!-- Lookup mode: a single term, straight to the gloss. -->
+  <section class="panel panel--lookup" data-panel="lookup" hidden>
+    <form id="lookup-form" class="composer">
+      <label class="composer__label" for="lookup-input">Enter a word, phrase or topic</label>
+      <div class="composer__row">
+        <input id="lookup-input" class="field field--large" type="search" autocomplete="off" spellcheck="false"
+          placeholder="chemiosmosis" maxlength="120">
+        <button type="submit" id="lookup-button" class="button button--primary">Explain</button>
+        <button type="button" class="button button--mic" data-voice-target="lookup-input" aria-pressed="false">Speak</button>
+        <button type="button" id="clear-lookup" class="button button--quiet">Clear</button>
+      </div>
+    </form>
+
+    <section class="history" id="history" hidden>
+      <h2 class="history__title">Recent</h2>
+      <ul id="history-list" class="history__list"></ul>
+      <button type="button" id="history-clear" class="button button--quiet button--small">Clear history</button>
+    </section>
+  </section>
+
+  <!-- The gloss: a margin note on desktop, a bottom sheet on small screens. -->
+  <aside id="gloss" class="gloss" aria-live="polite">
+    <div class="gloss__inner">
+      <div id="gloss-placeholder" class="gloss__placeholder">
+        <p>The explanation appears here.</p>
+      </div>
+
+      <div id="gloss-loading" class="gloss__loading" hidden>
+        <span class="bar bar--title"></span>
+        <span class="bar"></span>
+        <span class="bar bar--short"></span>
+      </div>
+
+      <div id="gloss-error" class="notice" hidden></div>
+
+      <article id="gloss-body" class="gloss__body" hidden>
+        <header class="gloss__head">
+          <h2 id="gloss-title" class="gloss__title"></h2>
+          <p id="gloss-pronunciation" class="gloss__pronunciation" hidden></p>
+        </header>
+
+        <p id="gloss-definition" class="gloss__definition"></p>
+
+        <section id="gloss-facts-section" class="gloss__section" hidden>
+          <h3 class="gloss__heading">Key facts</h3>
+          <dl id="gloss-facts" class="facts"></dl>
+        </section>
+
+        <section id="gloss-summary-section" class="gloss__section" hidden>
+          <h3 class="gloss__heading">Summary</h3>
+          <p id="gloss-summary" class="gloss__summary"></p>
+        </section>
+
+        <section id="gloss-related-section" class="gloss__section" hidden>
+          <h3 class="gloss__heading">Related terms</h3>
+          <ul id="gloss-related" class="chips"></ul>
+        </section>
+
+        <section id="gloss-categories-section" class="gloss__section" hidden>
+          <h3 class="gloss__heading">Categories</h3>
+          <ul id="gloss-categories" class="chips chips--quiet"></ul>
+        </section>
+
+        <footer class="gloss__foot">
+          <ul id="gloss-sources" class="sources"></ul>
+          <p id="gloss-updated" class="gloss__updated"></p>
+          <button type="button" id="copy-button" class="button button--quiet button--small">Copy explanation</button>
+        </footer>
+      </article>
+    </div>
+
+    <button type="button" id="gloss-close" class="gloss__close" aria-label="Close the explanation">Close</button>
+  </aside>
+</main>
+
+<footer class="colophon">
+  <p>Explanations are assembled from Wikipedia, Wikidata and the Free Dictionary API. Always check the linked source before citing.</p>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="js/config.js"></script>
+<script src="js/store.js"></script>
+<script src="js/api.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/reader.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
