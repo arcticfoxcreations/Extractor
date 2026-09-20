@@ -9,7 +9,7 @@ window.WordExtractorConfig = (function () {
   'use strict';
 
   var PRODUCTION_API = 'https://extractor-efku.onrender.com';
-  var LOCAL_API = 'http://localhost:8080';
+  var LOCAL_API = 'https://extractor-efku.onrender.com';
 
   function isLocal() {
     var host = window.location.hostname;
