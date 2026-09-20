@@ -5,7 +5,7 @@ window.WordExtractorConfig = (function () {
   'use strict';
 
   // Change this to your deployed backend before publishing to Pages.
-  var DEFAULT_API = 'https://word-extractor-xyz.onrender.com';
+  var DEFAULT_API = 'https://extractor-efku.onrender.com';
   var STORAGE_KEY = 'wx.apiBase';
 
   function isLocal() {
