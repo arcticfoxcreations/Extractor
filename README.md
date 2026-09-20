@@ -10,7 +10,7 @@ place, and puts a plain-language gloss beside the text instead of on top of it.
 Explanations are assembled from Wikipedia, Wikidata and the Free Dictionary
 API. No API keys, no paid services, no accounts.
 
-## What it does
+## What it does 
 
 **Read a paper.** Paste an abstract or a whole section. The backend scores
 every word for difficulty and marks the ones a reader is likely to stumble on.
