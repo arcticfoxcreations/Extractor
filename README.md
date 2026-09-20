@@ -147,7 +147,7 @@ docs/       API reference, deployment guide, environment guide
 
 ## Licence
 
-MIT.
+MIT. 
 
 Content comes from Wikipedia and Wikidata (CC BY-SA) and Wiktionary via the
 Free Dictionary API. Check the linked source before citing anything.
